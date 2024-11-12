@@ -1,6 +1,9 @@
 const User = require("../models/User");
 
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const createUserToken = require("../helpers/create-user-token");
 
 module.exports = class UserController {
   static async register(req, res) {
@@ -56,6 +59,7 @@ module.exports = class UserController {
       const novoUsuario = await user.save();
       await createUserToken(novoUsuario, req, res);
     } catch (error) {
+      console.log(error);
       res.status(500).json({ message: error });
     }
   }
