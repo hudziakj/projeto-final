@@ -1,0 +1,16 @@
+# Ignora arquivos de log
+*.log
+
+# Ignora arquivos e diretórios temporários
+temp/
+*.tmp
+PFC Imagens
+backend/node_modules
+
+# Ignora arquivos de compilação
+/build
+/dist
+
+# Ignora arquivos de configuração locais
+.env
+.DS_Store
