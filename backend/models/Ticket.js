@@ -7,23 +7,33 @@ const Ticket = mongoose.model(
     {
       titulo: {
         type: String,
-        required: true,
+        required: true, // Título do chamado é obrigatório
       },
       descricao: {
         type: String,
-        required: true,
+        required: true, // Descrição do chamado é obrigatória
       },
       andamento: {
         type: String,
+        enum: ["Aberto", "Em Progresso", "Fechado"], // Status do chamado
+        default: "Aberto", // Status inicial
         required: true,
+      },
+      categoria: {
+        type: String,
+        required: true, // Categoria do chamado (ex: "Suporte", "Manutenção")
       },
       requerente: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: true,
+      },
+      responsavel: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", // Referência ao usuário responsável
+        default: null, // Inicialmente o responsável pode ser null
       },
     },
-    { timestamps: true }
+    { timestamps: true } // Garante que o mongoose armazene as datas de criação e atualização automaticamente
   )
 );
 
