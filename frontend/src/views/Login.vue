@@ -2,41 +2,76 @@
   <div>
     <div class="container">
       <div class="one">
-        <img src="@/assets/logoParana.png" alt="">
-        <form>
+        <img src="@/assets/logoParana.png" alt="Logo Paraná" />
+        <form @submit.prevent="login">
           <div class="input-container">
             <label for="email">E-mail:</label>
-            <input type="email" id="email" />
+            <input type="email" id="email" v-model="email" required />
           </div>
           <div class="input-container">
             <label for="password">Senha:</label>
-            <input type="password" id="password" />
+            <input type="password" id="password" v-model="password" required />
           </div>
           <div class="lembrarMe">
-            <input type="checkbox" name="" id="lembrarSenha">
+            <input type="checkbox" id="lembrarSenha" v-model="rememberMe" />
             <label for="lembrarSenha">Lembrar-me</label>
           </div>
           <button class="botao-entrar" type="submit">Acessar</button>
-          <button class="botao-egov" type="submit">Entrar com e-gov.br</button>
+          <button class="botao-egov" type="button" @click="loginWithEgov">Entrar com e-gov.br</button>
           <router-link to="/register">Não tem uma conta? Registre-se aqui!</router-link>
         </form>
+        <p v-if="error" class="error">{{ error }}</p>
       </div>
-      <div class="two">
-      </div>
+      <div class="two"></div>
     </div>
   </div>
 </template>
 
 <script>
-  import "../styles/Login.css";
+import "../styles/Login.css";
+import api from '@/utils/axios.js'; // Certifique-se de que a configuração do axios está correta
 
-  export default {
-    name: "LoginPage",
-  };
+export default {
+  name: "LoginPage",
+  data() {
+    return {
+      email: '',
+      senha: '',
+      error: null,
+      rememberMe: false, // Controle para o checkbox "lembrar-me"
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        // Faz a requisição para a rota /users/login do backend
+        const response = await api.post('/users/login', {
+          email: this.email,
+          senha: this.password,
+        });
+
+        // Salva os dados retornados (ex: token ou usuário)
+        const userData = response.data;
+
+        // Salve o nome do usuário (ou outra informação) no Vuex, LocalStorage ou diretamente no estado
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        // Navega para a rota de "Hello World"
+        this.$router.push({ name: 'HelloWorld', params: { name: userData.name } });
+      } catch (err) {
+        // Trata erros (exemplo: credenciais inválidas)
+        this.error = 'Login falhou. Verifique suas credenciais.';
+      }
+    },
+    loginWithEgov() {
+      // Aqui você pode adicionar a lógica de login com e-gov.br
+      console.log("Entrar com e-gov.br");
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 a {
   text-decoration: none;
   color: black;
@@ -75,7 +110,7 @@ button {
   width: 25vw;
 }
 
-input[type="checkbox"]{
+input[type="checkbox"] {
   width: 1rem;
   height: 1rem;
 }
@@ -130,10 +165,16 @@ input[type="checkbox"]{
 }
 
 .container {
-  widows: 100%;
+  width: 100%;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.error {
+  color: red;
+  font-size: 1.2rem;
+  margin-top: 1rem;
 }
 </style>
