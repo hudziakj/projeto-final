@@ -3,30 +3,30 @@
     <h2>Registro</h2>
     
     <!-- Formulário de Registro -->
-    <form @submit.prevent="handleSubmit">
+    <form @submit.prevent="register">
       <div>
         <label for="nome">Nome</label>
-        <input type="text" v-model="form.nome" id="nome" required />
+        <input type="text" v-model="nome" id="nome" required />
       </div>
 
       <div>
         <label for="email">Email</label>
-        <input type="email" v-model="form.email" id="email" required />
+        <input type="email" v-model="email" id="email" required />
       </div>
 
       <div>
         <label for="departamento">Departamento</label>
-        <input type="text" v-model="form.departamento" id="departamento" required />
+        <input type="text" v-model="departamento" id="departamento" required />
       </div>
 
       <div>
         <label for="senha">Senha</label>
-        <input type="password" v-model="form.senha" id="senha" required />
+        <input type="password" v-model="senha" id="senha" required />
       </div>
 
       <div>
         <label for="confirmaSenha">Confirmar Senha</label>
-        <input type="password" v-model="form.confirmaSenha" id="confirmaSenha" required />
+        <input type="password" v-model="confirmaSenha" id="confirmaSenha" required />
       </div>
 
       <button type="submit">Registrar</button>
@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import api from '@/utils/axios.js';
 
 export default {
   name: "RegisterPage",
@@ -57,7 +57,7 @@ export default {
     };
   },
   methods: {
-    async handleSubmit() {
+  async register() {
   // Verificar se as senhas são iguais
   if (this.form.senha !== this.form.confirmaSenha) {
     this.errorMessage = "As senhas não coincidem!";
@@ -66,12 +66,12 @@ export default {
 
   try {
     // Enviar requisição POST para o back-end
-    const response = await axios.post("http://localhost:5000/users/register", {
-      nome: this.form.nome,
-      email: this.form.email,
-      departamento: this.form.departamento,
-      senha: this.form.senha,
-      confirmaSenha: this.form.confirmaSenha,
+    const response = await api.post("http://localhost:5000/users/register", {
+      nome: this.nome,
+      email: this.email,
+      departamento: this.departamento,
+      senha: this.senha,
+      confirmaSenha: this.confirmaSenha,
     });
 
     // Exibir mensagem de sucesso

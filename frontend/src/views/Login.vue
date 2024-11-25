@@ -57,7 +57,7 @@ export default {
         localStorage.setItem('user', JSON.stringify(userData));
 
         // Navega para a rota de "Hello World"
-        this.$router.push({ name: 'HelloWorld', params: { name: userData.name } });
+        this.$router.push({ name: 'ChamadosPage', params: { name: userData.name } });
       } catch (err) {
         // Trata erros (exemplo: credenciais inválidas)
         this.error = 'Login falhou. Verifique suas credenciais.';

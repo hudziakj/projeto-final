@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router"; // Importe corretamente
 import LoginPage from "@/views/Login.vue";
 import RegisterPage from "@/views/Register.vue";
-import HelloWorld from "@/components/HelloWorld.vue";
+import ChamadosPage from "@/views/ChamadosPage.vue";
+import CriarChamado from "@/views/CriarChamado.vue";
+import ChamadoDetalhe from "@/views/ChamadoDetalhe.vue";
 
 const routes = [
   {
@@ -19,10 +21,22 @@ const routes = [
     component: RegisterPage,
   },
   {
-    path: "/hello",
-    name: "HelloWorld",
-    component: HelloWorld,
+    path: "/chamados",
+    name: "ChamadosPage",
+    component: ChamadosPage,
     props: true, // Permite passar dados como props
+  },
+  {
+    path: "/chamadosCriar",
+    name: "CriarChamado",
+    component: CriarChamado,
+    props: true, // Permite passar dados como props
+  },
+  {
+    path: "/ticket/:id", // Rota para o detalhe do chamado
+    name: "ChamadoDetalhe",
+    component: ChamadoDetalhe,
+    props: true, // Permite passar o id como prop para o componente
   },
 ];
 

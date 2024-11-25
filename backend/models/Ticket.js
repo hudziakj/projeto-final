@@ -5,13 +5,17 @@ const Ticket = mongoose.model(
   "Ticket",
   new Schema(
     {
+      id: {
+        type: Number,
+        required: true,
+      },
       titulo: {
         type: String,
-        required: true, // Título do chamado é obrigatório
+        required: true,
       },
       descricao: {
         type: String,
-        required: true, // Descrição do chamado é obrigatória
+        required: true,
       },
       andamento: {
         type: String,
@@ -28,10 +32,26 @@ const Ticket = mongoose.model(
         ref: "User",
       },
       responsavel: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User", // Referência ao usuário responsável
-        default: null, // Inicialmente o responsável pode ser null
+        type: String,
+        required: true,
       },
+      comentarios: [
+        {
+          usuario: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User", // Referência ao usuário que fez o comentário
+            required: true,
+          },
+          comentario: {
+            type: String,
+            required: true,
+          },
+          data: {
+            type: Date,
+            default: Date.now,
+          },
+        },
+      ],
     },
     { timestamps: true } // Garante que o mongoose armazene as datas de criação e atualização automaticamente
   )
