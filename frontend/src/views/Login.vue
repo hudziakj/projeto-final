@@ -56,6 +56,11 @@ export default {
         // Salve o nome do usuário (ou outra informação) no Vuex, LocalStorage ou diretamente no estado
         localStorage.setItem('user', JSON.stringify(userData));
 
+        localStorage.setItem('userId', JSON.stringify(userData.userId));
+
+        localStorage.setItem("token", response.data.token);
+
+        localStorage.setItem("nome", response.data.nome);
         // Navega para a rota de "Hello World"
         this.$router.push({ name: 'ChamadosPage', params: { name: userData.name } });
       } catch (err) {
@@ -64,7 +69,6 @@ export default {
       }
     },
     loginWithEgov() {
-      // Aqui você pode adicionar a lógica de login com e-gov.br
       console.log("Entrar com e-gov.br");
     },
   },
@@ -166,7 +170,7 @@ input[type="checkbox"] {
 
 .container {
   width: 100%;
-  height: 100vh;
+  height: 94vh;
   display: flex;
   justify-content: center;
   align-items: center;

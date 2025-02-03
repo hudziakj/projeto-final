@@ -21,7 +21,7 @@ const User = mongoose.model(
         type: String,
         required: true,
       },
-      foto: {
+      avatar: {
         type: String,
       },
     },

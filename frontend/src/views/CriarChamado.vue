@@ -1,11 +1,5 @@
 <template>
     <div class="container">
-      <!-- Menu de navegação -->
-      <aside class="sidebar">
-        <button @click="navigateTo('CriarChamado')">Criar Chamado</button>
-        <button @click="navigateTo('ChamadosPage')">Meus Chamados</button>
-      </aside>
-  
       <!-- Conteúdo principal -->
       <main class="content">
         <h1>Criar Chamado</h1>
@@ -21,15 +15,15 @@
           <div class="form-group">
             <label for="categoria">Categoria:</label>
             <select id="categoria" v-model="categoria" required>
-              <option value="Suporte">Outros</option>
+              <option value="Outros">Outros</option>
               <option value="Manutenção">Manutenção </option>
-              <option value="Novo Usuário">Compras</option>
+              <option value="Compras">Compras</option>
               <!-- Adicione outras opções conforme necessário -->
             </select>
           </div>
           <!-- Campo de Técnico Responsável -->
           <div class="form-group">
-            <label for="tecnico">Técnico Responsável:</label>
+            <label for="tecnico">Responsável:</label>
             <input type="text" id="tecnico" v-model="tecnico" readonly />
           </div>
           <div class="form-group">
@@ -45,21 +39,29 @@ import api from '@/utils/axios.js'; // Importa o arquivo axios.js
 
 export default {
   name: 'CriarChamado',
+  created() {
+  // Recupera o ID do usuário armazenado no localStorage
+  const userId = localStorage.getItem('userId'); // Supondo que você tenha armazenado o ID do usuário
+  this.requerente = userId ? JSON.parse(userId) : ''; // Remove as aspas extras, caso existam
+},
   data() {
     return {
       titulo: '',
       descricao: '',
       categoria: 'Suporte', // Valor padrão da categoria
       tecnico: 'Matheus',  // Técnico responsável (valor fixo)
+      requerente: ""
     };
   },
   methods: {
     async submitForm() {
+      console.log(this.requerente)
       const chamadoData = {
         titulo: this.titulo,
         descricao: this.descricao,
         categoria: this.categoria,
         responsavel: this.tecnico, // Inclui o técnico no objeto enviado
+        requerente: this.requerente
       };
 
       try {
@@ -80,40 +82,25 @@ export default {
 
 <style scoped>
 
+textarea{
+  resize: none;
+  height: 25vh;
+}
+
 .container {
   display: flex;
   flex-direction: row;
-  height: 100vh;
-}
-
-/* Menu lateral */
-.sidebar {
-  width: 200px;
-  background-color: #f4f4f4;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  border-right: 1px solid #ccc;
-}
-
-.sidebar button {
-  padding: 0.5rem 1rem;
-  border: none;
-  background-color: #007bff;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.sidebar button:hover {
-  background-color: #0056b3;
 }
 
 /* Conteúdo principal */
 .content {
   flex-grow: 1;
-  padding: 2rem;
+  padding: 1rem;
+}
+
+.content > h1{
+  margin-top: -1rem;
+  margin-bottom: 1rem;
 }
 
 form {
@@ -146,6 +133,7 @@ input[readonly] {
 }
 
 button {
+  font-size: 1rem;
   padding: 0.5rem 1rem;
   background-color: #007bff;
   color: white;

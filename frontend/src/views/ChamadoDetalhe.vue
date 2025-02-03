@@ -1,110 +1,13 @@
-<template>
-    <div class="container">
-      <!-- Menu Lateral -->
-      <MenuLateral />
-      
-      <!-- Conteúdo Principal -->
-      <div class="content">
-        <div v-if="ticket">
-          <h1>Detalhes do Chamado: {{ ticket.titulo }}</h1>
-          <p><strong>Descrição:</strong> {{ ticket.descricao }}</p>
-          <p><strong>Categoria:</strong> {{ ticket.categoria }}</p>
-          <p><strong>Andamento:</strong> {{ ticket.andamento }}</p>
-          <p><strong>Responsável:</strong> {{ ticket.responsavel }}</p>
-          
-          <!-- Comentários -->
-          <div v-if="ticket.comentarios && ticket.comentarios.length">
-            <h2>Comentários</h2>
-            <ul>
-              <li v-for="comment in ticket.comentarios" :key="comment.id">
-                <p><strong>{{ comment.usuario }}:</strong> {{ comment.texto }}</p>
-              </li>
-            </ul>
-          </div>
-  
-          <!-- Formulário para adicionar comentário -->
-          <div>
-            <textarea v-model="newComment" placeholder="Adicionar um comentário"></textarea>
-            <button @click="addComment">Adicionar Comentário</button>
-          </div>
-        </div>
-        
-        <div v-else>
-          <p>Carregando...</p>
-        </div>
-      </div>
-    </div>
-  </template>
-  <script>
-  import axios from 'axios'
-  import MenuLateral from '@/components/MenuLateral.vue';
-  
-  export default {
-    data() {
-      return {
-        ticket: null,
-        newComment: '',
-      }
-    },
-    components: {
-      MenuLateral
-    },
-    created() {
-      this.fetchTicketDetail();
-    },
-    methods: {
-      async fetchTicketDetail() {
-        try {
-          const response = await axios.get(`http://localhost:5000/tickets/${this.$route.params.id}`);
-          this.ticket = response.data;
-        } catch (error) {
-          console.error("Erro ao carregar os detalhes do chamado:", error);
-        }
-      },
-      async addComment() {
-        if (this.newComment.trim()) {
-          try {
-            await axios.post(`http://localhost:5000/tickets/${this.ticket.id}/comentarios`, {
-              texto: this.newComment,
-              usuario: "Usuário Teste", // Aqui você pode adicionar o nome do usuário logado
-            });
-            this.fetchTicketDetail();
-            this.newComment = ''; // Limpa o campo de comentário
-          } catch (error) {
-            console.error("Erro ao adicionar o comentário:", error);
-          }
-        }
-      }
-    }
-  }
-  </script>
-  <style scoped>
+<style scoped>
 /* Estrutura do layout */
 .container {
   display: flex;
-  height: 100vh; /* Certifique-se de que a altura ocupe toda a tela */
-}
-
-/* Menu lateral */
-.sidebar {
-  width: 200px;
-  background-color: #f4f4f4;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  border-right: 1px solid #ccc;
-  position: fixed; /* Faz com que o menu lateral fique fixo na tela */
-  height: 100vh; /* Faz o menu lateral ocupar toda a altura da tela */
-  top: 0; /* Garante que o menu lateral fique fixo no topo */
 }
 
 /* Conteúdo principal */
 .content {
-  margin-left: 200px; /* Deixa espaço para o menu lateral */
   padding: 2rem;
   width: 100%;
-  height: 100vh;
   overflow-y: auto; /* Garante que o conteúdo tenha rolagem se necessário */
 }
 
@@ -116,10 +19,26 @@
   margin-bottom: 0.5rem;
 }
 
+/* Estilo do textarea (campo de comentário) */
 .content textarea {
-  width: 100%;
+  width: 74vw;
   height: 100px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave para dar profundidade */
+  resize: none; /* Evita redimensionamento manual */
+  transition: all 0.3s ease; /* Transição suave para interações */
+}
+
+.content textarea:focus {
+  border-color: #007bff; /* Cor da borda ao focar */
+  outline: none; /* Remove o contorno padrão */
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3); /* Efeito de sombra quando o campo está em foco */
 }
 
 .content button {
@@ -127,11 +46,170 @@
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease; /* Transição suave para a cor do botão */
 }
 
-.content button:hover {
+.content button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.content button:hover:not(:disabled) {
   background-color: #0056b3;
 }
+
+/* Estilo para o container de comentários */
+.comments-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.comment-card {
+  display: flex;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  margin-top: .5rem;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; /* Torna o avatar circular */
+  background-color: #ccc; /* Cor de fundo para o avatar */
+  margin-right: 1rem;
+}
+
+.comment-content h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.comment-content p {
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+.content h1{
+  margin-top: -1rem;
+}
 </style>
+
+
+<script>
+import axios from 'axios';
+
+
+export default {
+  data() {
+    return {
+      ticket: null,
+      newComment: '',
+      loading: false,
+    };
+  },
+  components: {
+  },
+  created() {
+    this.fetchTicketDetail();
+  },
+  methods: {
+    async fetchTicketDetail() {
+      try {
+        const token = localStorage.getItem("token"); // Pegue o token do localStorage
+        const response = await axios.get(`http://localhost:5000/tickets/${this.$route.params.id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Adiciona o token ao cabeçalho da requisição
+          },
+        });
+        this.ticket = response.data;
+        console.log(this.ticket.comentarios);
+      } catch (error) {
+        console.error("Erro ao carregar os detalhes do chamado:", error);
+      }
+    },
+    async addComment() {
+      if (this.newComment.trim()) {
+        this.loading = true; // Indica carregamento
+        try {
+          const token = localStorage.getItem("token");
+          let userId = localStorage.getItem("userId");
+          let nome = localStorage.getItem("nome");
+          console.log(nome);
+          
+          // Remover aspas ou barras invertidas, caso existam
+          userId = userId.replace(/["\\]/g, '');  // Remove aspas e barras invertidas
+          
+          await axios.post(
+            `http://localhost:5000/tickets/${this.ticket._id}/comentarios`,
+            {
+              comentario: this.newComment,
+              usuarioId: userId, // ID do usuário logado
+              nome,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          this.newComment = ''; // Limpa o campo de comentário
+          await this.fetchTicketDetail(); // Atualiza os detalhes do chamado
+        } catch (error) {
+          console.error("Erro ao adicionar o comentário:", error);
+        } finally {
+          this.loading = false; // Termina o carregamento
+        }
+      }
+    },
+  },
+};
+</script>
+
+<template>
+  <div class="container">
+    
+    <!-- Conteúdo Principal -->
+    <div class="content">
+      <div v-if="ticket">
+        <h1>Detalhes do Chamado: {{ ticket.titulo }}</h1>
+        <p><strong>Descrição:</strong> {{ ticket.descricao }}</p>
+        <p><strong>Categoria:</strong> {{ ticket.categoria }}</p>
+        <p><strong>Andamento:</strong> {{ ticket.andamento }}</p>
+        <p><strong>Responsável:</strong> {{ ticket.responsavel }}</p>
+        
+        <!-- Comentários -->
+        <div v-if="ticket.comentarios && ticket.comentarios.length">
+          <h2>Comentários:</h2>
+          <div class="comments-container">
+            <div v-for="comment in ticket.comentarios" :key="comment._id" class="comment-card">
+              <div class="avatar"></div> <!-- Avatar circular -->
+              <div class="comment-content">
+                <h3>{{ comment.nome || 'Anônimo' }}</h3>
+                <p>{{ comment.comentario }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulário para adicionar comentário -->
+        <div>
+          <textarea v-model="newComment" placeholder="Adicionar um comentário"></textarea>
+          <button @click="addComment" :disabled="loading">Adicionar Comentário</button>
+        </div>
+      </div>
+      
+      <div v-else>
+        <p>Carregando...</p>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,35 +1,46 @@
 <template>
-  <div>
-    <h2>Registro</h2>
-    
+  <div class="content">
+    <h1>Registro</h1>
+
     <!-- Formulário de Registro -->
-    <form @submit.prevent="register">
-      <div>
+    <form @submit.prevent="register" class="form-container">
+      <div class="form-group">
         <label for="nome">Nome</label>
-        <input type="text" v-model="nome" id="nome" required />
+        <input type="text" v-model="form.nome" id="nome" required />
       </div>
 
-      <div>
+      <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" v-model="email" id="email" required />
+        <input type="email" v-model="form.email" id="email" required />
       </div>
 
-      <div>
+      <div class="form-group">
         <label for="departamento">Departamento</label>
-        <input type="text" v-model="departamento" id="departamento" required />
+        <input type="text" v-model="form.departamento" id="departamento" required />
       </div>
 
-      <div>
+      <div class="form-group">
         <label for="senha">Senha</label>
-        <input type="password" v-model="senha" id="senha" required />
+        <input type="password" v-model="form.senha" id="senha" required />
       </div>
 
-      <div>
+      <div class="form-group">
         <label for="confirmaSenha">Confirmar Senha</label>
-        <input type="password" v-model="confirmaSenha" id="confirmaSenha" required />
+        <input type="password" v-model="form.confirmaSenha" id="confirmaSenha" required />
       </div>
 
-      <button type="submit">Registrar</button>
+      <!-- Campo de Upload de Imagem (Avatar) -->
+      <div class="form-group">
+        <label for="avatar">Escolha um Avatar</label>
+        <input type="file" id="avatar" @change="handleAvatarUpload" accept="image/*" />
+      </div>
+
+      <!-- Exibição da Imagem Selecionada -->
+      <div v-if="avatarPreview" class="avatar-preview">
+        <img :src="avatarPreview" alt="Avatar Preview" class="avatar-img" />
+      </div>
+
+      <button type="submit" :disabled="loading">Registrar</button>
     </form>
 
     <!-- Exibir mensagem de erro ou sucesso -->
@@ -39,7 +50,7 @@
 </template>
 
 <script>
-import api from '@/utils/axios.js';
+import api from "@/utils/axios.js";
 
 export default {
   name: "RegisterPage",
@@ -51,62 +62,134 @@ export default {
         departamento: "",
         senha: "",
         confirmaSenha: "",
+        avatar: null, // Campo para armazenar a imagem do avatar
       },
+      avatarPreview: null, // Para mostrar a imagem escolhida antes do envio
       errorMessage: "",
       successMessage: "",
+      loading: false, // Para controlar o botão de envio
     };
   },
   methods: {
-  async register() {
-  // Verificar se as senhas são iguais
+    // Função para lidar com o upload de avatar
+    handleAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        // Criar um preview da imagem selecionada
+        this.avatarPreview = URL.createObjectURL(file);
+        this.form.avatar = file; // Armazenar o arquivo de imagem
+      }
+    },
+
+    async register() {
+  if (!this.form.nome || !this.form.email || !this.form.departamento || !this.form.senha || !this.form.confirmaSenha) {
+    this.errorMessage = "Por favor, preencha todos os campos.";
+    return;
+  }
   if (this.form.senha !== this.form.confirmaSenha) {
-    this.errorMessage = "As senhas não coincidem!";
+    this.errorMessage = "As senhas não coincidem.";
     return;
   }
 
-  try {
-    // Enviar requisição POST para o back-end
-    const response = await api.post("http://localhost:5000/users/register", {
-      nome: this.nome,
-      email: this.email,
-      departamento: this.departamento,
-      senha: this.senha,
-      confirmaSenha: this.confirmaSenha,
-    });
+  const formData = new FormData();
+  formData.append("nome", this.form.nome);
+  formData.append("email", this.form.email);
+  formData.append("departamento", this.form.departamento);
+  formData.append("senha", this.form.senha);
+  formData.append("confirmaSenha", this.form.confirmaSenha);
+  if (this.form.avatar) formData.append("avatar", this.form.avatar);
 
-    // Exibir mensagem de sucesso
-    if (response.status === 200) {
-      this.successMessage = "Usuário registrado com sucesso!";
-      this.errorMessage = "";
-      // Resetar o formulário
-      this.form = {
-        nome: "",
-        email: "",
-        departamento: "",
-        senha: "",
-        confirmaSenha: "",
-      };
-    }
+  try {
+    this.loading = true;
+    const response = await api.post("http://localhost:5000/users/register", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    
+    this.successMessage = response.data.message;
+    this.errorMessage = "";
+    this.loading = false;
+    
+    // Redireciona para a tela de login após 2 segundos
+    setTimeout(() => {
+      this.$router.push("/login");
+    }, 2000);
+    
   } catch (error) {
-    console.log("Erro completo:", error); // Imprime todo o erro para depuração
-    // Aqui, verificamos se o erro tem a propriedade `response`
-    if (error.response) {
-      console.log("Erro de resposta da API:", error.response); // Detalha a resposta da API
-      this.errorMessage = `Erro ao registrar usuário: ${error.response.data.message || error.response.statusText}`;
-    } else {
-      console.log("Erro sem resposta da API:", error); // Caso o erro não tenha `response`
-      this.errorMessage = "Erro desconhecido ao tentar registrar o usuário.";
-    }
-    this.successMessage = ""; // Limpar mensagem de sucesso em caso de erro
+    console.log(error);
+    this.errorMessage = error.response?.data?.message || "Erro ao registrar.";
+    this.successMessage = "";
+    this.loading = false;
   }
 }
 
-,
   },
 };
 </script>
 
 <style scoped>
+.content {
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+h1 {
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.avatar-preview {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .error {
   color: red;
 }

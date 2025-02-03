@@ -1,8 +1,11 @@
-const router = require("express").Router();
-
+const express = require("express");
+const router = express.Router();
 const UserController = require("../controllers/UserController");
 
-router.post("/register", UserController.register);
+const upload = require("../config/multer-config");
+
+router.post("/register", upload.single("avatar"), UserController.register);
 router.post("/login", UserController.login);
+router.get("/:id", UserController.getUser);
 
 module.exports = router;
